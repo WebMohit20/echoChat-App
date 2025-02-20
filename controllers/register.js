@@ -1,5 +1,7 @@
 const customResponse = require("../utils/customResponse");
 const User = require("../models/user");
+const JWT = require("jsonwebtoken");
+require("dotenv").config();
 
 const register = async (req,res)=>{
     try{
@@ -15,7 +17,17 @@ const register = async (req,res)=>{
         });
         // const savedUser = await newUser.save();
 
-        customResponse(res,201,true,"User Added",newUser,null);
+        const token = JWT.sign({
+            userId:newUser._id,
+            email
+        },
+        process.env.JWTOKEN_KEY ,
+        {
+            expiresIn : "1h"
+        })
+        // newUser.token = token
+
+        customResponse(res,201,true,"User Added",{newUser,token},null);
     }catch(err){
         console.log(`login error`,err);
         customResponse(res,500,false,"Registration error",null,err);
